@@ -1,0 +1,10 @@
+{
+  "name": "openvino-computer-pointer-controller",
+  "scripts": {
+    "install": "pip install -r requirements.txt --use-feature=2020-resolver",
+    "venv:create": "virtualenv --system-site-packages venv",
+    "start": "python src/main.py",
+    "test": "echo no tests defined"
+  },
+  "license": "MIT"
+}
