@@ -11,6 +11,22 @@ import cv2
 from numpy import ndarray
 
 
+class ImageCapture:
+    def __init__(self, input_file):
+        self.frame = cv2.imread(input_file)
+        self.is_available = True
+
+    def read(self):
+        if self.is_available:
+            self.is_available = False
+            return True, self.frame
+        else:
+            return False, None
+
+    def release(self):
+        pass
+
+
 class InputFeeder:
     def __init__(self, input_type, input_file=None):
         """
@@ -28,17 +44,25 @@ class InputFeeder:
         elif self.input_type == "cam":
             self.cap = cv2.VideoCapture(0)
         else:
-            self.cap = cv2.imread(self.input_file)
+            self.cap = ImageCapture(self.input_file)
 
-    def next_batch(self):
+    def next_batch(self, frame_skip_count=5):
         """
         Returns the next image from either a video file or webcam.
         If input_type is 'image', then it returns the same image.
         """
+        frame_count = 0
+        frame_divisor = max(frame_skip_count + 1, 1)
         while True:
-            for _ in range(10):
-                _, frame = self.cap.read()
-            yield frame
+            ret, frame = self.cap.read()
+            if ret:
+                if frame_count % frame_divisor == 0:
+                    yield frame
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                frame_count += 1
+            else:
+                break
 
     def close(self):
         """
